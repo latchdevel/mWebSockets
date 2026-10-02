@@ -25,7 +25,7 @@
 
 #include <inttypes.h>
 
-// Rotation functions that are optimised for best performance on AVR.
+// Rotation functions that are optimized for best performance on AVR.
 // The most efficient rotations are where the number of bits is 1 or a
 // multiple of 8, so we compose the efficient rotations to produce all
 // other rotation counts of interest.

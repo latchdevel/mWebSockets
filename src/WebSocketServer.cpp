@@ -21,7 +21,7 @@ void WebSocketServer::shutdown() {
     }
   }
 
-  // Here I shoud call somethig like m_server.close() but unfortunately
+  // Here I should call something like m_server.close() but unfortunately
   // EthernetServer does not implement anything like that
   // #TODO server state enum?
 }
@@ -36,28 +36,30 @@ void WebSocketServer::broadcast(
 void WebSocketServer::listen() {
   _cleanDeadConnections();
 
-  auto client = m_server.available();
-  if (client) {
-    auto ws = _getWebSocket(client);
-    if (!ws) {
-      // A new client
-      bool clientRequestFailed = false;
-      for (auto &it : m_sockets) {
-        if (!it) {
-          char selectedProtocol[32]{};
-          if (_handleRequest(client, selectedProtocol)) {
-            ws = it = new WebSocket{
-              client, *selectedProtocol ? selectedProtocol : nullptr};
-            if (_onConnection) _onConnection(*ws);
-          } else {
-            clientRequestFailed = true;
+  if (countClients() < kMaxConnections){
+    auto client = m_server.available();
+    if (client) {
+      auto ws = _getWebSocket(client);
+      if (!ws) {
+        // A new client
+        bool clientRequestFailed = false;
+        for (auto &it : m_sockets) {
+          if (!it) {
+            char selectedProtocol[32]{};
+            if (_handleRequest(client, selectedProtocol)) {
+              ws = it = new WebSocket{
+                client, *selectedProtocol ? selectedProtocol : nullptr};
+              if (_onConnection) _onConnection(*ws);
+            } else {
+              clientRequestFailed = true;
+            }
+            break;
           }
-          break;
         }
-      }
-      if (!clientRequestFailed && !ws) {
-        // Server is full
-        _rejectRequest(client, WebSocketError::SERVICE_UNAVAILABLE);
+        if (!clientRequestFailed && !ws) {
+          // Server is full
+          _rejectRequest(client, WebSocketError::SERVICE_UNAVAILABLE);
+        }
       }
     }
   }
@@ -107,7 +109,7 @@ bool WebSocketServer::_handleRequest(
   }
 #endif
 
-  // Large enought to hold the longest header field
+  // Large enough to hold the longest header field
   //  Chrome: 'User-Agent' = ~126 characters
   //  Edge: 'User-Agent' = ~141 characters
   //  Firefox: 'User-Agent' = ~90 characters

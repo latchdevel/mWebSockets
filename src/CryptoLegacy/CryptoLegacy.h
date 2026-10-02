@@ -23,7 +23,7 @@
 #ifndef CRYPTO_LEGACY_H
 #define CRYPTO_LEGACY_H
 
-// This header exists to make the Arudino IDE add the library to the
+// This header exists to make the Arduino IDE add the library to the
 // include and link paths when the sketch includes <CryptoLegacy.h>.
 
 #endif
