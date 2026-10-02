@@ -217,6 +217,7 @@ public:
    * @remark For some microcontrollers it might be empty.
    */
   IPAddress getRemoteIP() const;
+  uint16_t getRemotePort() const;
   const char *getProtocol() const;
 
   /**

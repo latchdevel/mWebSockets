@@ -36,4 +36,8 @@ IPAddress fetchRemoteIp(const NetClient &client) {
 #endif
 }
 
+uint16_t fetchRemotePort(const NetClient &client) {
+  return const_cast<NetClient &>(client).remotePort();
+}
+
 } // namespace net

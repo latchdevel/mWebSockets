@@ -174,6 +174,7 @@ bool WebSocket::isAlive() const {
 }
 
 IPAddress WebSocket::getRemoteIP() const { return fetchRemoteIp(m_client); }
+uint16_t WebSocket::getRemotePort() const { return fetchRemotePort(m_client); }
 const char *WebSocket::getProtocol() const { return m_protocol; }
 
 void WebSocket::send(

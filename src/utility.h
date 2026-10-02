@@ -29,5 +29,6 @@ void printf(const __FlashStringHelper *fmt, ...);
 namespace net {
 
 IPAddress fetchRemoteIp(const NetClient &);
+uint16_t fetchRemotePort(const NetClient &);
 
 } // namespace net
