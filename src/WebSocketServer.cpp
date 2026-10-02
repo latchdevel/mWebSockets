@@ -21,7 +21,7 @@ void WebSocketServer::shutdown() {
     }
   }
 
-  // Here I shoud call somethig like m_server.close() but unfortunately
+  // Here I should call something like m_server.close() but unfortunately
   // EthernetServer does not implement anything like that
   // #TODO server state enum?
 }
@@ -107,7 +107,7 @@ bool WebSocketServer::_handleRequest(
   }
 #endif
 
-  // Large enought to hold the longest header field
+  // Large enough to hold the longest header field
   //  Chrome: 'User-Agent' = ~126 characters
   //  Edge: 'User-Agent' = ~141 characters
   //  Firefox: 'User-Agent' = ~90 characters

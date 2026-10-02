@@ -34,7 +34,7 @@
 void clean(void *dest, size_t size)
 {
     // Force the use of volatile so that we actually clear the memory.
-    // Otherwise the compiler might optimise the entire contents of this
+    // Otherwise the compiler might optimize the entire contents of this
     // function away, which will not be secure.
     volatile uint8_t *d = (volatile uint8_t *)dest;
     while (size > 0) {

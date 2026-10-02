@@ -30,7 +30,7 @@ public:
   void listen();
 
   /**
-   * @brief Sets callback that will be called on a successfull connection.
+   * @brief Sets callback that will be called on a successful connection.
    * @code{.cpp}
    * client.onOpen([](WebSocket &ws) {
    *   // connected ... send hello message or whatever

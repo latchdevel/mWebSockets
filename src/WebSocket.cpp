@@ -28,12 +28,12 @@ constexpr bool isCloseCodeValid(uint16_t code) {
 bool encodeSecKey(const char *key, char output[]) {
   constexpr auto kSecKeyLength = 24;
   constexpr char kMagicString[]{"258EAFA5-E914-47DA-95CA-C5AB0DC85B11"};
-  constexpr auto kMagicStringLenght = sizeof(kMagicString) - 1;
+  constexpr auto kMagicStringLength = sizeof(kMagicString) - 1;
 
-  constexpr auto kBufferLength = kSecKeyLength + kMagicStringLenght;
+  constexpr auto kBufferLength = kSecKeyLength + kMagicStringLength;
   char buffer[kBufferLength + 1]{};
   memcpy(&buffer[0], key, kSecKeyLength);
-  memcpy(&buffer[kSecKeyLength], kMagicString, kMagicStringLenght);
+  memcpy(&buffer[kSecKeyLength], kMagicString, kMagicStringLength);
 
   SHA1 sha1;
   sha1.update(buffer, kBufferLength);

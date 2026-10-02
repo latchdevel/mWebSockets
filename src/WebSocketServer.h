@@ -45,7 +45,7 @@ public:
    *     // return negotiated subprotocol or nullptr to ignore
    *   });
    * @endcode
-   * @param callback Function called for every header during hadshake (except
+   * @param callback Function called for every header during handshake (except
    * for those required by protocol, like **Connection**, **Upgrade** etc.)
    */
   void begin(const verifyClientCallback &verifyClient = nullptr,
