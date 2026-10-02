@@ -36,28 +36,30 @@ void WebSocketServer::broadcast(
 void WebSocketServer::listen() {
   _cleanDeadConnections();
 
-  auto client = m_server.available();
-  if (client) {
-    auto ws = _getWebSocket(client);
-    if (!ws) {
-      // A new client
-      bool clientRequestFailed = false;
-      for (auto &it : m_sockets) {
-        if (!it) {
-          char selectedProtocol[32]{};
-          if (_handleRequest(client, selectedProtocol)) {
-            ws = it = new WebSocket{
-              client, *selectedProtocol ? selectedProtocol : nullptr};
-            if (_onConnection) _onConnection(*ws);
-          } else {
-            clientRequestFailed = true;
+  if (countClients() < kMaxConnections){
+    auto client = m_server.available();
+    if (client) {
+      auto ws = _getWebSocket(client);
+      if (!ws) {
+        // A new client
+        bool clientRequestFailed = false;
+        for (auto &it : m_sockets) {
+          if (!it) {
+            char selectedProtocol[32]{};
+            if (_handleRequest(client, selectedProtocol)) {
+              ws = it = new WebSocket{
+                client, *selectedProtocol ? selectedProtocol : nullptr};
+              if (_onConnection) _onConnection(*ws);
+            } else {
+              clientRequestFailed = true;
+            }
+            break;
           }
-          break;
         }
-      }
-      if (!clientRequestFailed && !ws) {
-        // Server is full
-        _rejectRequest(client, WebSocketError::SERVICE_UNAVAILABLE);
+        if (!clientRequestFailed && !ws) {
+          // Server is full
+          _rejectRequest(client, WebSocketError::SERVICE_UNAVAILABLE);
+        }
       }
     }
   }
