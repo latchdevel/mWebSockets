@@ -4,8 +4,15 @@
 
 namespace net {
 
-WebSocketServer::WebSocketServer(uint16_t port) : m_server{port} {}
-WebSocketServer::~WebSocketServer() { shutdown(); }
+WebSocketServer::WebSocketServer(uint16_t port, uint8_t maxConnections) 
+  : m_server{port},
+    m_sockets{new WebSocket*[maxConnections]{}},
+    m_maxConnections{maxConnections} {}  
+
+WebSocketServer::~WebSocketServer() { 
+  shutdown(); 
+  delete[] m_sockets;
+}
 
 void WebSocketServer::begin(const verifyClientCallback &verifyClient,
   const protocolHandlerCallback &protocolHandler) {
@@ -14,7 +21,8 @@ void WebSocketServer::begin(const verifyClientCallback &verifyClient,
   m_server.begin();
 }
 void WebSocketServer::shutdown() {
-  for (auto ws : m_sockets) {
+  for (uint8_t i = 0; i < m_maxConnections; ++i) {
+    auto ws = m_sockets[i];
     if (ws) {
       ws->close(WebSocket::CloseCode::GOING_AWAY, true);
       SAFE_DELETE(ws);
@@ -28,22 +36,25 @@ void WebSocketServer::shutdown() {
 
 void WebSocketServer::broadcast(
   const WebSocket::DataType dataType, const char *message, uint16_t length) {
-  for (auto ws : m_sockets)
+  for (uint8_t i = 0; i < m_maxConnections; ++i) {
+    auto ws = m_sockets[i];
     if (ws && ws->getReadyState() == WebSocket::ReadyState::OPEN)
       ws->send(dataType, message, length);
+  }
 }
 
 void WebSocketServer::listen() {
   _cleanDeadConnections();
 
-  if (countClients() < kMaxConnections){
+  if (countClients() < m_maxConnections){
     auto client = m_server.available();
     if (client) {
       auto ws = _getWebSocket(client);
       if (!ws) {
         // A new client
         bool clientRequestFailed = false;
-        for (auto &it : m_sockets) {
+        for (uint8_t i = 0; i < m_maxConnections; ++i) {
+          auto &it = m_sockets[i];
           if (!it) {
             char selectedProtocol[32]{};
             if (_handleRequest(client, selectedProtocol)) {
@@ -63,7 +74,8 @@ void WebSocketServer::listen() {
       }
     }
   }
-  for (auto it : m_sockets) {
+  for (uint8_t i = 0; i < m_maxConnections; ++i) {
+    auto it = m_sockets[i];
     if (it && it->m_client.connected() && it->m_client.available()) {
       it->_readFrame();
     }
@@ -72,9 +84,10 @@ void WebSocketServer::listen() {
 
 uint8_t WebSocketServer::countClients() const {
   uint8_t count{0};
-  for (auto ws : m_sockets)
+  for (uint8_t i = 0; i < m_maxConnections; ++i) {
+    auto ws = m_sockets[i];
     if (ws && ws->isAlive()) ++count;
-
+  } 
   return count;
 }
 
@@ -83,9 +96,10 @@ void WebSocketServer::onConnection(const onConnectionCallback &callback) {
 }
 
 WebSocket *WebSocketServer::_getWebSocket(NetClient &client) const {
-  for (auto ws : m_sockets)
+  for (uint8_t i = 0; i < m_maxConnections; ++i) {
+    auto ws = m_sockets[i];
     if (ws && ws->m_client == client) return ws;
-
+  }
   return nullptr;
 }
 
@@ -388,7 +402,8 @@ void WebSocketServer::_acceptRequest(
 }
 
 void WebSocketServer::_cleanDeadConnections() {
-  for (auto &it : m_sockets) {
+  for (uint8_t i = 0; i < m_maxConnections; ++i) {
+    auto &it = m_sockets[i];
     if (it && !it->isAlive()) {
       delete it;
       it = nullptr;
