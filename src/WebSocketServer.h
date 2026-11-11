@@ -27,7 +27,7 @@ public:
    * @brief Initializes server on given port.
    * @note Don't forget to call begin()
    */
-  WebSocketServer(uint16_t port = 3000);
+  WebSocketServer(uint16_t port = 3000, uint8_t maxConnections = kMaxConnections);
   WebSocketServer(const WebSocketServer &) = delete;
   ~WebSocketServer();
 
@@ -62,6 +62,9 @@ public:
 
   /** @return Amount of connected clients. */
   uint8_t countClients() const;
+
+  /** @return Maximum number of concurrent clients. */  
+  uint8_t maxConnections() const { return m_maxConnections; }
 
   /**
    * @brief
@@ -102,7 +105,8 @@ private:
   /** @endcond */
 private:
   NetServer m_server;
-  WebSocket *m_sockets[kMaxConnections]{};
+  WebSocket **m_sockets{nullptr};  
+  uint8_t m_maxConnections{0};
 
   verifyClientCallback _verifyClient{nullptr};
   protocolHandlerCallback _protocolHandler{nullptr};
